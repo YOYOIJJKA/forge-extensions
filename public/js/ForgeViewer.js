@@ -62,3 +62,25 @@ function getForgeToken(callback) {
     });
   });
 }
+
+async function addViewable(urn, xform, offset) {
+  return new Promise(function (resolve, reject) {
+      function onDocumentLoadSuccessAdd(doc) {
+          const viewable = doc.getRoot().getDefaultGeometry();
+          const options = {
+              preserveView: true,
+              keepCurrentModels: true
+          };
+          if (xform) {
+              options.placementTransform= xform;
+          }
+          if (offset) {
+              options.globalOffset = offset;
+          }
+          viewer.loadDocumentNode(doc, viewable, options)
+              .then(resolve)
+              .catch(reject);
+      }
+      Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccessAdd, onDocumentLoadFailure);
+  });
+}

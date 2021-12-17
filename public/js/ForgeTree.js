@@ -118,7 +118,13 @@ function prepareAppBucketTree() {
           url: 'https://developer.api.autodesk.com/modelderivative/v2/designdata/' + urn + '/manifest',
           headers: { 'Authorization': 'Bearer ' + access_token },
           success: function (res) {
-            if (res.progress === 'success' || res.progress === 'complete') launchViewer(urn,filename);
+            if (res.progress === 'success' || res.progress === 'complete') {
+
+              launchViewer(urn,filename);
+              addViewable(urn, {x:100, y:100, z:100},{x:0,y:0,z:0})
+
+               
+            }
             else $("#forgeViewer").html('The translation job still running: ' + res.progress + '. Please try again in a moment.');
           },
           error: function (err) {
@@ -128,6 +134,7 @@ function prepareAppBucketTree() {
             $("#forgeViewer").html(msgButton);
           }
         });
+      
       })
     }
   }).on('ready.jstree', function () {
