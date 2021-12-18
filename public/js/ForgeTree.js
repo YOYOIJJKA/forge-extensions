@@ -155,7 +155,8 @@ function prepareAppBucketTree() {
         window.extension = extension;
       }
       extensionloaded = true;
-    }    
+    }
+    $('#appBuckets').jstree('activate_node', 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDIxLTEyLTE3LTA4LTMwLTAwLWQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlLyVEMCU5RiVEMCVCQiVEMCVCRSVEMSU4OSVEMCVCMCVEMCVCNCVEMCVCQSVEMCVCMC5pcHQ=');
   });
 }
 
