@@ -277,7 +277,6 @@ Autodesk.ADN.Viewing.Extension.TransformTool =  function (viewer, options) {
                 Autodesk.Viewing.SELECTION_CHANGED_EVENT,
                 onItemSelected);
         };
-
         ///////////////////////////////////////////////////////////////////////////
         // deactivate tool
         //
@@ -475,7 +474,7 @@ Autodesk.ADN.Viewing.Extension.TransformTool =  function (viewer, options) {
 
         viewer.toolController.registerTool(_self.tool);
 
-        if (this.viewer.model.getInstanceTree()) {
+        if (this.viewer.getAggregateSelection()) {
             _self.customize();
         } else {
             this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, _self.customize());

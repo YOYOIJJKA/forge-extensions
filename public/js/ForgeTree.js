@@ -16,6 +16,12 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
+var checkcreated = 0;
+var locationx=0;
+var locationy=0;
+var locationz = 0;
+
+
 $(document).ready(function () {
   prepareAppBucketTree();
   $('#refreshBuckets').click(function () {
@@ -109,7 +115,7 @@ function prepareAppBucketTree() {
     $('#appBuckets').jstree('open_all');    
   }).bind("activate_node.jstree", function (evt, data) {
     if (data != null && data.node != null && data.node.type == 'object') {
-      $("#forgeViewer").empty();
+      // $("#forgeViewer").empty();
       var urn = data.node.id;
       var filename = data.node.text
       document.getElementsByClassName('tobegin')[0].style.display = 'none';
@@ -119,11 +125,13 @@ function prepareAppBucketTree() {
           headers: { 'Authorization': 'Bearer ' + access_token },
           success: function (res) {
             if (res.progress === 'success' || res.progress === 'complete') {
-
+              if (checkcreated === 0)
+              {
               launchViewer(urn,filename);
-              addViewable(urn, {x:100, y:100, z:100},{x:0,y:0,z:0})
-
-               
+              }
+              if (checkcreated ===1)
+              addViewable(urn, {x:locationx, y:locationy, z:locationz});//,{x:0,y:0,z:0})
+              checkcreated = 1
             }
             else $("#forgeViewer").html('The translation job still running: ' + res.progress + '. Please try again in a moment.');
           },
