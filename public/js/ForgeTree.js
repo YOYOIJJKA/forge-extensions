@@ -16,11 +16,11 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
-var checkcreated = 0;
-var locationx=0;
-var locationy=0;
-var locationz = 0;
-
+let checkcreated = 0;
+let locationX = 0;
+let locationY = 0;
+let locationZ = 0;
+const plateUrn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDIxLTEyLTE3LTA4LTMwLTAwLWQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlLyVEMCU5RiVEMCVCQiVEMCVCRSVEMSU4OSVEMCVCMCVEMCVCNCVEMCVCQSVEMCVCMC5pcHQ='
 
 $(document).ready(function () {
   prepareAppBucketTree();
@@ -34,6 +34,17 @@ $(document).ready(function () {
 
   $('#createBucketModal').on('shown.bs.modal', function () {
     $("#newBucketKey").focus();
+  })
+  $('#inputX').on('change', function () {
+    locationX = parseInt(this.value) 
+  })
+  $('#inputZ').on('change', function () {
+    locationZ = parseInt(this.value) 
+  })
+
+  $('#setXYZconfirm').click('shown.bs.modal', function () {
+    if (checkcreated === 1 &&curUrn!='')
+      addViewable(curUrn, {x:locationX, y:locationY, z:locationZ});
   })
   
   $('#hiddenUploadField').change(function () {
@@ -82,6 +93,7 @@ function createNewBucket() {
   });
 }
 var extensionloaded = false;
+var curUrn = ""
 function prepareAppBucketTree() {
   $('#appBuckets').jstree({
     'core': {
@@ -117,6 +129,7 @@ function prepareAppBucketTree() {
     if (data != null && data.node != null && data.node.type == 'object') {
       // $("#forgeViewer").empty();
       var urn = data.node.id;
+      curUrn = urn
       var filename = data.node.text
       document.getElementsByClassName('tobegin')[0].style.display = 'none';
       getForgeToken(function (access_token) {
@@ -125,12 +138,14 @@ function prepareAppBucketTree() {
           headers: { 'Authorization': 'Bearer ' + access_token },
           success: function (res) {
             if (res.progress === 'success' || res.progress === 'complete') {
-              if (checkcreated === 0)
-              {
-              launchViewer(urn,filename);
+              if(curUrn!=plateUrn){
+                $('#XYZinputModal').modal('toggle');
               }
-              if (checkcreated ===1)
-              addViewable(urn, {x:locationx, y:locationy, z:locationz});//,{x:0,y:0,z:0})
+              if (checkcreated === 0){
+                launchViewer(urn,filename);
+              }
+              // if (checkcreated === 1)
+              //   addViewable(urn, {x:locationL, y:locationY, z:locationZ});//,{x:0,y:0,z:0})
               checkcreated = 1
             }
             else $("#forgeViewer").html('The translation job still running: ' + res.progress + '. Please try again in a moment.');
@@ -156,7 +171,7 @@ function prepareAppBucketTree() {
       }
       extensionloaded = true;
     }
-    $('#appBuckets').jstree('activate_node', 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bW9kZWwyMDIxLTEyLTE3LTA4LTMwLTAwLWQ0MWQ4Y2Q5OGYwMGIyMDRlOTgwMDk5OGVjZjg0MjdlLyVEMCU5RiVEMCVCQiVEMCVCRSVEMSU4OSVEMCVCMCVEMCVCNCVEMCVCQSVEMCVCMC5pcHQ=');
+    $('#appBuckets').jstree('activate_node', plateUrn);
   });
 }
 
