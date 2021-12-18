@@ -18,10 +18,17 @@
 
 const fs = require('fs');
 const express = require('express');
-const multer  = require('multer');
-const { BucketsApi, ObjectsApi, PostBucketsPayload } = require('forge-apis');
+const multer = require('multer');
+const {
+    BucketsApi,
+    ObjectsApi,
+    PostBucketsPayload
+} = require('forge-apis');
 
-const { getClient, getInternalToken } = require('./common/oauth');
+const {
+    getClient,
+    getInternalToken
+} = require('./common/oauth');
 const config = require('../config');
 
 let router = express.Router();
@@ -41,17 +48,19 @@ router.get('/buckets', async (req, res, next) => {
     if (!bucket_name || bucket_name === '#') {
         try {
             // Retrieve buckets from Forge using the [BucketsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/BucketsApi.md#getBuckets)
-            const buckets = await new BucketsApi().getBuckets({ limit: 64 }, req.oauth_client, req.oauth_token);
+            const buckets = await new BucketsApi().getBuckets({
+                limit: 64
+            }, req.oauth_client, req.oauth_token);
             res.json(buckets.body.items.map((bucket) => {
                 return {
                     id: bucket.bucketKey,
                     // Remove bucket key prefix that was added during bucket creation
-                    text: bucket.bucketKey.replace(config.credentials.client_id.toLowerCase() + '-', ''),
+                    text: "Folder",
                     type: 'bucket',
                     children: true
                 };
             }));
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     } else {
@@ -66,10 +75,43 @@ router.get('/buckets', async (req, res, next) => {
                     children: false
                 };
             }));
-        } catch(err) {
+            
+
+        } catch (err) {
             next(err);
         }
     }
+});
+router.get('/objects', async (req, res, next) => {
+    try {
+        // Retrieve objects from Forge using the [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#getObjects)
+        const buckets = await new BucketsApi().getBuckets({
+            limit: 64
+        }, req.oauth_client, req.oauth_token);
+
+        objectsArr = []
+        objectReqs = []
+        buckets.body.items.map((bucket) => {
+           objectReqs.push(new ObjectsApi().getObjects(bucket.bucketKey, {}, req.oauth_client, req.oauth_token))
+        })
+        await Promise.all(objectReqs).then(objects=>{
+            objects.map(result=>{
+                result.body.items.map((object) => {
+                    objectsArr.push({
+                        id: Buffer.from(object.objectId).toString('base64'),
+                        text: object.objectKey,
+                        type: 'object',
+                        children: false
+                    });
+                })
+            })
+        })
+            res.json(objectsArr)
+
+    } catch (err) {
+        next(err);
+    }
+
 });
 
 // POST /api/forge/oss/buckets - creates a new bucket.
@@ -93,21 +135,22 @@ router.post('/buckets', async (req, res, next) => {
 // POST /api/forge/oss/objects - uploads new object to given bucket.
 // Request body must be structured as 'form-data' dictionary
 // with the uploaded file under "fileToUpload" key, and the bucket name under "bucketKey".
-router.post('/objects', multer({ dest: 'uploads/' }).single('fileToUpload'), async (req, res, next) => {    
+router.post('/objects', multer({
+    dest: 'uploads/'
+}).single('fileToUpload'), async (req, res, next) => {
     fs.readFile(req.file.path, async (err, data) => {
         if (err) {
             next(err);
         }
         try {
             // Upload an object to bucket using [ObjectsApi](https://github.com/Autodesk-Forge/forge-api-nodejs-client/blob/master/docs/ObjectsApi.md#uploadObject).
-            if(req.body.bucketKey === config.credentials.client_id.toLowerCase() + '-' + "samplemodels"){
+            if (req.body.bucketKey === config.credentials.client_id.toLowerCase() + '-' + "samplemodels") {
                 res.status(500).end();
-            } 
-            else{
+            } else {
                 await new ObjectsApi().uploadObject(req.body.bucketKey, req.file.originalname, data.length, data, {}, req.oauth_client, req.oauth_token);
-                res.status(200).end();                
+                res.status(200).end();
             }
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     });

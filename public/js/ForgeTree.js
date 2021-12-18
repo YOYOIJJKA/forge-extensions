@@ -87,7 +87,7 @@ function prepareAppBucketTree() {
     'core': {
       'themes': { "icons": true },
       'data': {
-        "url": '/api/forge/oss/buckets',
+        "url": '/api/forge/oss/objects',
         "dataType": "json",
         'multiple': false,
         "data": function (node) {
